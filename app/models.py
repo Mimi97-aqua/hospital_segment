@@ -1,12 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 db = SQLAlchemy()
 
 class Participant(db.Model):
     __tablename__ = 'participants'
-    id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, nullable=False, default=uuid.uuid4)
+    id = db.Column(db.String, primary_key=True, default=lambda: str(uuid.uuid4()))
     first_names = db.Column(db.String(100), nullable=False)
     middle_name_initial = db.Column(db.String(10), nullable=False)
     last_names = db.Column(db.String(100), nullable=False)
@@ -26,3 +27,13 @@ class Participant(db.Model):
 #
 # class Prescription(db.Model):
 #     __tablename__ = 'prescriptions'
+
+
+# Serialization
+class ParticipantSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Participant
+        load_instance = True
+
+participant_schema = ParticipantSchema()
+participants_schema = ParticipantSchema(many=True)
