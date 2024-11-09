@@ -1,9 +1,7 @@
-import json
 import os
 from datetime import datetime, timedelta
 
-from flask import url_for, request, redirect, flash, Blueprint, jsonify, current_app
-from app import db
+from flask import request, flash, Blueprint, jsonify, current_app
 from app.models import *
 from werkzeug.utils import secure_filename
 
