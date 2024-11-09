@@ -3,8 +3,11 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from sqlalchemy import Column, String, Integer, Date, Time, ForeignKey
+from sqlalchemy.orm import relationship
+
 
 db = SQLAlchemy()
+
 
 class Participant(db.Model):
     __tablename__ = 'participants'
@@ -27,6 +30,7 @@ class Participant(db.Model):
     # Relationships
     prescriptions = db.relationship('Prescription', backref='participant', lazy=True)
 
+
 class Prescription(db.Model):
     __tablename__ = 'prescriptions'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -47,33 +51,29 @@ class Prescription(db.Model):
     comment = db.Column(db.String, nullable=True)
 
     # Relationships
-    dose_times = db.relationship('DoseTime', back_populates='prescription')
+    drugs = db.relationship('Drug', backref='prescription', lazy=True)
+    pharmacy = db.relationship('Pharmacy', backref='prescription', lazy=True)
+    dose_times = db.relationship('DoseTime', backref='prescription', lazy=True)
 
 # Dependent Models
-class Drugs(db.Model):
+class Drug(db.Model):
     __tablename__ = 'drugs'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
     manufacturer = db.Column(db.String, nullable=False)
     form = db.Column(db.String, nullable=False) # Syrup, Tablet, Capsule, Powder etc
 
-    # Relationships
-    prescriptions = db.relationship('Prescription', backref='medication', lazy=True)
+class Pharmacy(db.Model):
+    __tablename__ = 'pharmacies'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    location = db.Column(db.String, nullable=False)
 
 class DoseTime(db.Model):
     __tablename__ = 'dose_times'
     id = db.Column(db.String, primary_key=True, default=lambda: str(uuid.uuid4()))
     prescription_id = db.Column(db.Integer, db.ForeignKey('prescriptions.id'), nullable=False)
     time = db.Column(db.Time, nullable=False)
-
-class Pharmacy(db.model):
-    __tablename__ = 'phamarcies'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=False)
-    location = db.Column(db.String, nullable=False)
-
-    # Relationships
-    prescriptions = db.relationship('Prescriptions', backref='medication', lazy=True)
 
 # Serialization
 class ParticipantSchema(SQLAlchemyAutoSchema):
@@ -83,7 +83,7 @@ class ParticipantSchema(SQLAlchemyAutoSchema):
 
 class DrugsSchema(SQLAlchemyAutoSchema):
     class Meta:
-        model = Drugs
+        model = Drug
         load_instance = True
 
 class PharmacySchema(SQLAlchemyAutoSchema):
