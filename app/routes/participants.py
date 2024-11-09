@@ -47,19 +47,24 @@ def create_participant():
             }), 400
 
         try:
-            first_names = request.form['first_names']
-            middle_name_initial = request.form['middle_name_initial']
-            last_names = request.form['last_names']
-            gender = request.form['gender']
-            date_of_birth = datetime.strptime(request.form['date_of_birth'], '%Y-%m-%d').date()
-            legal_status = request.form['legal_status']
-            maid_number = int(request.form['maid_number'])
-            ssn = int(request.form['ssn'])
-            phone_number = int(request.form['phone_number'])
-            address_1 = request.form['address_1']
-            address_2 = request.form['address_2']
-            city_state = request.form['city_state']
-            zip_code = int(request.form['zip_code'])
+            first_names = request.form.get('first_names')
+            middle_name_initial = request.form.get('middle_name_initial')
+            last_names = request.form.get('last_names')
+            gender = request.form.get('gender')
+            date_of_birth = datetime.strptime(request.form.get('date_of_birth'), '%Y-%m-%d').date()
+            legal_status = request.form.get('legal_status')
+            maid_number = int(request.form.get('maid_number'))
+            ssn = int(request.form.get('ssn'))
+            phone_number = int(request.form.get('phone_number'))
+            address_1 = request.form.get('address_1')
+            address_2 = request.form.get('address_2')
+            city_state = request.form.get('city_state')
+            zip_code = int(request.form.get('zip_code'))
+
+            required_params = [first_names, last_names, gender, date_of_birth, legal_status, maid_number, ssn,
+                               phone_number, address_1, city_state, zip_code]
+            if any(params is None for params in required_params):
+                raise ValueError("Missing parameter(s)")
 
             new_participant = Participant(
                 first_names=first_names,
@@ -93,8 +98,8 @@ def create_participant():
     else:
         return jsonify({
             "status": "error",
-            "message": "Invalid request"
-        }), 400
+            "message": "Method not allowed"
+        }), 405
 
 
 @participants_routes.route('/list', methods=['GET'])
@@ -230,26 +235,26 @@ def edit_participant_details(participant_id):
 @participants_routes.route('/prescribe', methods=['POST'])
 def create_prescription():
     if request.method == 'POST':
-        participant_id = request.form['participant_id']
-        drug_id = request.form['drug_id']
-        reason_for_medication = request.form['reason_for_medication']
-        prescriber = request.form['prescriber']
-        pharmacy_id = request.form['pharmacy_id']
-        quantity_dosage = int(request.form['quantity_dosage'])
-        refills = int(request.form['refills'])
-        start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d').date()
-        # expiry_date = datetime.strptime(request.form['expiry_date'], '%Y-%m-%d').date()
+        participant_id = request.form.get('participant_id')
+        drug_id = request.form.get('drug_id')
+        reason_for_medication = request.form.get('reason_for_medication')
+        prescriber = request.form.get('prescriber')
+        pharmacy_id = request.form.get('pharmacy_id')
+        quantity_dosage = int(request.form.get('quantity_dosage'))
+        refills = int(request.form.get('refills'))
+        start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
+        # expiry_date = datetime.strptime(request.form.get('expiry_date'], '%Y-%m-%d').date()
         expiry_date = start_date + timedelta(days=refills * 30)
-        dose = request.form['dose']
-        frequency = int(request.form['frequency'])
-        comment = request.form['comment']
+        dose = request.form.get('dose')
+        frequency = int(request.form.get('frequency'))
+        comment = request.form.get('comment')
 
         dose_times = []
         for x in range(dose):
             dose_time_key = f"dose_time_{x+1}"
 
             if dose_time_key in request.form:
-                dose_time = datetime.strptime(request.form[dose_time_key], '%H:%M').time()
+                dose_time = datetime.strptime(request.form.get(dose_time_key), '%H:%M').time()
                 dose_times.append(dose_time)
             else:
                 return jsonify({
