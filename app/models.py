@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from sqlalchemy import Column, String, Integer, Date, Time, ForeignKey
 
 db = SQLAlchemy()
 
@@ -22,12 +23,57 @@ class Participant(db.Model):
     city_state = db.Column(db.String(50), nullable=False)
     zip_code = db.Column(db.Integer, nullable=False)
     profile_photo = db.Column(db.String(200), nullable=False)
-    #prescriptions = db.relationship('Prescription', backref='participant', lazy=True)
 
-#
-# class Prescription(db.Model):
-#     __tablename__ = 'prescriptions'
+    # Relationships
+    prescriptions = db.relationship('Prescription', backref='participant', lazy=True)
 
+class Prescription(db.Model):
+    __tablename__ = 'prescriptions'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Foreign keys
+    participant_id = db.Column(db.String, db.ForeignKey('participants.id'), nullable=False)
+    drug_id = db.Column(db.Integer, db.ForeignKey('drugs.id'), nullable=False)
+    pharmacy_id = db.Column(db.Integer, db.ForeignKey('pharmacies.id'), nullable=False)
+
+    reason_for_medication = db.Column(db.String(200), nullable=True)
+    prescriber = db.Column(db.String(50), nullable=False)
+    quantity_dosage = db.Column(db.Integer, nullable=False)
+    refills = db.Column(db.Integer, nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    expiry_date = db.Column(db.Date, nullable=False)
+    dose = db.Column(db.Integer, nullable=False)
+    frequency = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.String, nullable=True)
+
+    # Relationships
+    dose_times = db.relationship('DoseTime', back_populates='prescription')
+
+# Dependent Models
+class Drugs(db.Model):
+    __tablename__ = 'drugs'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    manufacturer = db.Column(db.String, nullable=False)
+    form = db.Column(db.String, nullable=False) # Syrup, Tablet, Capsule, Powder etc
+
+    # Relationships
+    prescriptions = db.relationship('Prescription', backref='medication', lazy=True)
+
+class DoseTime(db.Model):
+    __tablename__ = 'dose_times'
+    id = db.Column(db.String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    prescription_id = db.Column(db.Integer, db.ForeignKey('prescriptions.id'), nullable=False)
+    time = db.Column(db.Time, nullable=False)
+
+class Pharmacy(db.model):
+    __tablename__ = 'phamarcies'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    location = db.Column(db.String, nullable=False)
+
+    # Relationships
+    prescriptions = db.relationship('Prescriptions', backref='medication', lazy=True)
 
 # Serialization
 class ParticipantSchema(SQLAlchemyAutoSchema):
@@ -35,5 +81,21 @@ class ParticipantSchema(SQLAlchemyAutoSchema):
         model = Participant
         load_instance = True
 
+class DrugsSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Drugs
+        load_instance = True
+
+class PharmacySchema(SQLAlchemyAutoSchema):
+    class Meta:
+        load_instance = True
+
+
 participant_schema = ParticipantSchema()
 participants_schema = ParticipantSchema(many=True)
+
+drug_schema = DrugsSchema()
+drugs_schema = DrugsSchema(many=True)
+
+pharmacy_schema = PharmacySchema()
+pharmacies_schema = PharmacySchema(many=True)

@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import url_for, request, redirect, flash, Blueprint, jsonify, current_app
 from app import db
@@ -17,15 +17,10 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@participants_routes.route('/', methods=['GET'])
-def index():
-    return "Hello"
-
-
 @participants_routes.route('/create', methods=['POST'])
 def create_participant():
     """
-    Create participant
+    Creates participant
     """
     # Handle photo upload
     if request.method == 'POST':
@@ -67,7 +62,6 @@ def create_participant():
             address_2 = request.form['address_2']
             city_state = request.form['city_state']
             zip_code = int(request.form['zip_code'])
-            profile_photo = request.files['profile_photo']
 
             new_participant = Participant(
                 first_names=first_names,
@@ -138,7 +132,7 @@ def view_all_participants():
 def view_all_participant_details():
     try:
         participants = Participant.query.all()
-        participants =participants_schema.dump(participants)
+        participants = participants_schema.dump(participants)
 
         return jsonify({
             "status": "success",
@@ -233,3 +227,72 @@ def edit_participant_details(participant_id):
                 "status": "error",
                 "message": str(e)
             }), 400
+
+
+@participants_routes.route('/prescribe', methods=['POST'])
+def create_prescription():
+    if request.method == 'POST':
+        participant_id = request.form['participant_id']
+        drug_id = request.form['drug_id']
+        reason_for_medication = request.form['reason_for_medication']
+        prescriber = request.form['prescriber']
+        pharmacy_id = request.form['pharmacy_id']
+        quantity_dosage = int(request.form['quantity_dosage'])
+        refills = int(request.form['refills'])
+        start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d').date()
+        # expiry_date = datetime.strptime(request.form['expiry_date'], '%Y-%m-%d').date()
+        expiry_date = start_date + timedelta(days=refills * 30)
+        dose = request.form['dose']
+        frequency = int(request.form['frequency'])
+        comment = request.form['comment']
+
+        dose_times = []
+        for x in range(dose):
+            dose_time_key = f"dose_time_{x+1}"
+
+            if dose_time_key in request.form:
+                dose_time = datetime.strptime(request.form[dose_time_key], '%H:%M').time()
+                dose_times.append(dose_time)
+            else:
+                return jsonify({
+                    "status": "error",
+                    "message": f"Dose time {x+1} is missing. Please insert."
+                }), 400
+
+        new_prescription = Prescription(
+            participant_id=participant_id,
+            drug_id=drug_id,
+            reason_for_medication=reason_for_medication,
+            prescriber=prescriber,
+            pharmacy_id=pharmacy_id,
+            quantity_dosage=quantity_dosage,
+            refills=refills,
+            start_date=start_date,
+            expiry_date=expiry_date,
+            frequency=frequency,
+            dose=dose,
+            comment=comment
+        )
+
+        db.session.add(new_prescription)
+        db.session.commit()
+
+        for dose_time in dose_times:
+            new_dose_time = DoseTime(
+                prescription_id=new_prescription.id,
+                time=dose_time
+            )
+
+            db.session.add(new_dose_time)
+
+        db.session.commit()
+
+        return jsonify({
+            "status": "success",
+            "message": "Prescription has been successfully created!"
+        }), 200
+    else:
+        return jsonify({
+            "status": "error",
+            "message": "Invalid HTTP verb"
+        }), 400
