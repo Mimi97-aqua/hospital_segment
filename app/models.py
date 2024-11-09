@@ -88,6 +88,7 @@ class DrugsSchema(SQLAlchemyAutoSchema):
 
 class PharmacySchema(SQLAlchemyAutoSchema):
     class Meta:
+        model = Pharmacy
         load_instance = True
 
 
