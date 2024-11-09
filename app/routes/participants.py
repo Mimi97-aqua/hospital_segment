@@ -252,6 +252,9 @@ def edit_participant_details(participant_id):
 
 @participants_routes.route('/prescribe', methods=['POST'])
 def create_prescription():
+    """
+    Prescribes medication for the participant (patient)
+    """
     if request.method == 'POST':
         participant_id = request.form.get('participant_id')
         drug_id = request.form.get('drug_id')
@@ -263,7 +266,7 @@ def create_prescription():
         start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
         # expiry_date = datetime.strptime(request.form.get('expiry_date'], '%Y-%m-%d').date()
         expiry_date = start_date + timedelta(days=refills * 30)
-        dose = request.form.get('dose')
+        dose = int(request.form.get('dose'))
         frequency = int(request.form.get('frequency'))
         comment = request.form.get('comment')
 
