@@ -20,8 +20,8 @@ def create_participant():
     """
     Creates participant
     """
-    # Handle photo upload
     if request.method == 'POST':
+        # Handle photo upload
         if 'profile_photo' not in request.files:
             flash('No file part')
             return jsonify({
@@ -98,7 +98,7 @@ def create_participant():
     else:
         return jsonify({
             "status": "error",
-            "message": "Method not allowed"
+            "message": f"{request.method} not allowed"
         }), 405
 
 
@@ -133,6 +133,9 @@ def view_all_participants():
 
 @participants_routes.route('/details', methods=['GET'])
 def view_all_participant_details():
+    """
+    Displays all participant details.
+    """
     try:
         participants = Participant.query.all()
         participants = participants_schema.dump(participants)
@@ -151,6 +154,9 @@ def view_all_participant_details():
 
 @participants_routes.route('/delete/<string:participant_id>', methods=['DELETE'])
 def delete_participant(participant_id):
+    """
+    Deletes a specified participant using their user ID
+    """
     if request.method == 'DELETE':
         try:
             participant = Participant.query.get(participant_id)
@@ -182,7 +188,7 @@ def delete_participant(participant_id):
 @participants_routes.route('/update/<string:participant_id>', methods=['PATCH'])
 def edit_participant_details(participant_id):
     """
-    Edit participant details
+    Edit participant details (partial update)
     """
     if request.method == 'PATCH':
         try:
@@ -212,12 +218,24 @@ def edit_participant_details(participant_id):
             if 'zip_code' in info:
                 participant.zip_code = info['zip_code']
 
-            if 'profile_photo' in info:
+            if 'profile_photo' in request.files:
                 file = request.files['profile_photo']
+
+                if file.filename == '':
+                    return jsonify({
+                        "status": "error",
+                        "message": "No selected file"
+                    }), 400
+
                 if allowed_file(file.filename):
                     filename = secure_filename(file.filename)
                     file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                     participant.profile_photo = filename
+                else:
+                    return jsonify({
+                        "status": "error",
+                        "message": "File type not allowed."
+                    }), 400
 
             db.session.commit()
 
