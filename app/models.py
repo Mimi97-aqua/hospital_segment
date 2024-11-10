@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import uuid
+
+from marshmallow import fields
 from sqlalchemy.dialects.postgresql import UUID
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from sqlalchemy import Column, String, Integer, Date, Time, ForeignKey
@@ -27,6 +29,9 @@ class Participant(db.Model):
     zip_code = db.Column(db.Integer, nullable=False)
     profile_photo = db.Column(db.String(200), nullable=False)
 
+    # Foreign keys
+    caregiver_id = db.Column(db.String, db.ForeignKey('caregivers.id'), nullable=False)
+
     # Relationships
     prescriptions = db.relationship('Prescription', backref='participant', lazy=True)
 
@@ -39,6 +44,7 @@ class Prescription(db.Model):
     participant_id = db.Column(db.String, db.ForeignKey('participants.id'), nullable=False)
     drug_id = db.Column(db.Integer, db.ForeignKey('drugs.id'), nullable=False)
     pharmacy_id = db.Column(db.Integer, db.ForeignKey('pharmacies.id'), nullable=False)
+    caregiver_id = db.Column(db.String, db.ForeignKey('caregivers.id'), nullable=False)
 
     reason_for_medication = db.Column(db.String(200), nullable=True)
     prescriber = db.Column(db.String(50), nullable=False)
@@ -87,11 +93,6 @@ class DoseTime(db.Model):
     time = db.Column(db.Time, nullable=False)
 
 # Serialization
-class ParticipantSchema(SQLAlchemyAutoSchema):
-    class Meta:
-        model = Participant
-        load_instance = True
-
 class DrugsSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Drug
@@ -102,6 +103,20 @@ class PharmacySchema(SQLAlchemyAutoSchema):
         model = Pharmacy
         load_instance = True
 
+class CaregiverSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Caregiver
+        load_instance = True
+
+class ParticipantSchema(SQLAlchemyAutoSchema):
+    caregiver = fields.Nested(CaregiverSchema)
+    class Meta:
+        model = Participant
+        load_instance = True
+
+class PrescriptionSchema(SQLAlchemyAutoSchema):
+    caregiver = fields.Nested(CaregiverSchema)
+    drugs = fields.Nested(DrugsSchema)
 
 participant_schema = ParticipantSchema()
 participants_schema = ParticipantSchema(many=True)
