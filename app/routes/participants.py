@@ -15,8 +15,8 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@participants_routes.route('/create', methods=['POST'])
-def create_participant():
+@participants_routes.route('/create/<string:caregiver_id>', methods=['POST'])
+def create_participant(caregiver_id):
     """
     Creates participant
     """
@@ -47,6 +47,7 @@ def create_participant():
             }), 400
 
         try:
+            caregiver = Caregiver.query.get_or_404(caregiver_id)
             first_names = request.form.get('first_names')
             middle_name_initial = request.form.get('middle_name_initial')
             last_names = request.form.get('last_names')
@@ -149,7 +150,7 @@ def view_all_participant_details():
         return jsonify({
             "status": "error",
             "message": str(e)
-        })
+        }), 400
 
 
 @participants_routes.route('/delete/<string:participant_id>', methods=['DELETE'])

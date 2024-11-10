@@ -126,3 +126,6 @@ drugs_schema = DrugsSchema(many=True)
 
 pharmacy_schema = PharmacySchema()
 pharmacies_schema = PharmacySchema(many=True)
+
+caregiver_schema = CaregiverSchema()
+caregivers_schema = CaregiverSchema(many=True)
