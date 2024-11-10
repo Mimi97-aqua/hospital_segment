@@ -68,6 +68,7 @@ def create_participant(caregiver_id):
                 raise ValueError("Missing parameter(s)")
 
             new_participant = Participant(
+                caregiver_id=caregiver.id,
                 first_names=first_names,
                 middle_name_initial=middle_name_initial,
                 last_names=last_names,
@@ -257,11 +258,16 @@ def create_prescription():
     Prescribes medication for the participant (patient)
     """
     if request.method == 'POST':
-        participant_id = request.form.get('participant_id')
+        #caregiver = Caregiver.query.get_or_404(caregiver_id)
+        caregiver = request.form.get('caregiver_id')
+        participant = request.form.get('participant_id')
+        #participant = Participant.query.get_or_404(participant_id)
+        # caregiver = db.session.query(Caregiver).get(caregiver_id)
+        # participant = db.session.query(Participant).get(participant_id)
         drug_id = request.form.get('drug_id')
         reason_for_medication = request.form.get('reason_for_medication')
         prescriber = request.form.get('prescriber')
-        pharmacy_id = request.form.get('pharmacy_id')
+        pharmacy_id = Pharmacy.query.get_or_404(request.form.get('pharmacy_id'))
         quantity_dosage = int(request.form.get('quantity_dosage'))
         refills = int(request.form.get('refills'))
         start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
@@ -284,7 +290,8 @@ def create_prescription():
                 }), 400
 
         new_prescription = Prescription(
-            participant_id=participant_id,
+            caregiver=caregiver,
+            participant_id=participant,
             drug_id=drug_id,
             reason_for_medication=reason_for_medication,
             prescriber=prescriber,
