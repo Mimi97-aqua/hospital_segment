@@ -265,7 +265,7 @@ def create_prescription():
         refills = int(request.form.get('refills'))
         start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
         # expiry_date = datetime.strptime(request.form.get('expiry_date'], '%Y-%m-%d').date()
-        expiry_date = start_date + timedelta(days=refills * 30)
+        expiry_date = start_date + timedelta(days=refills * 30) + timedelta(days=1 * 30)
         dose = int(request.form.get('dose'))
         frequency = int(request.form.get('frequency'))
         comment = request.form.get('comment')
