@@ -55,6 +55,17 @@ class Prescription(db.Model):
     pharmacy = db.relationship('Pharmacy', backref='prescription', lazy=True)
     dose_times = db.relationship('DoseTime', backref='prescription', lazy=True)
 
+class Caregiver(db.Model):
+    __tablename__ = 'caregivers'
+    id = db.Column(db.String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
+    phone = db.Column(db.String(50), nullable=False)
+
+    # Relationships
+    participants = db.relationship('Participant', backref='caregiver', lazy=True)
+    prescriptions = db.relationship('Prescription', backref='caregiver', lazy=True)
+
 # Dependent Models
 class Drug(db.Model):
     __tablename__ = 'drugs'
