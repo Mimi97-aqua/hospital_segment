@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import Caregiver, db, caregivers_schema
+from app.models import Caregiver, db, caregivers_schema, Participant
 
 caregiver_route = Blueprint('caregiver_route', __name__)
 
@@ -53,6 +53,37 @@ def view_caregiver_details():
             "status": "success",
             "count": len(caregivers),
             "caregiver_details": caregivers
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 400
+
+
+@caregiver_route.route('/<string:caregiver_id>/participants', methods=['GET'])
+def list_participants_for_caregiver(caregiver_id):
+    """
+    List all participants associated with a caregiver.
+    """
+    try:
+        caregiver = Caregiver.query.get_or_404(caregiver_id)
+        participants = Participant.query.filter_by(caregiver_id=caregiver_id).all()
+
+        participants_list = []
+        for participant in participants:
+            participants_list.append({
+                "id": participant.id,
+                "name": participant.first_names + " " + participant.last_names
+            })
+
+        return jsonify({
+            "status": "success",
+            "caregiver": {
+                "id": caregiver.id,
+                "name": caregiver.name,
+                "participants": participants_list
+            }
         }), 200
     except Exception as e:
         return jsonify({
