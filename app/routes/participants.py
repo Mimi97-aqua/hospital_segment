@@ -327,3 +327,34 @@ def create_prescription():
             "status": "error",
             "message": "Invalid HTTP verb"
         }), 400
+
+
+@participants_routes.route('/prescriptions/<string:participant_id>')
+def list_all_participant_prescriptions(participant_id):
+    """
+    List all the prescriptions created for a given participant.
+    """
+    try:
+        participant = Participant.query.get_or_404(participant_id)
+        prescriptions = Prescription.query.filter_by(participant_id=participant_id).all()
+
+        prescriptions_list = []
+        for prescription in prescriptions:
+            prescriptions_list.append({
+                "id": prescription.id,
+                "name": prescription.drugs.name,
+                "dose": prescription.dose,
+                "time": [dose_time.time.strftime('%H:%M') for dose_time in prescription.dose_times],
+                "instruction": prescription.comment
+            })
+
+        return jsonify({
+            "status": "success",
+            "prescriptions_count": len(prescriptions_list),
+            "prescriptions": prescriptions_list
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 400
