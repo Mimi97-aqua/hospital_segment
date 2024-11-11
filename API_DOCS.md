@@ -65,7 +65,7 @@ in the design. The first 4 fields cannot be edited.
 
 12. **Delete participant:** _DELETE_ `participant/delete/<string:participant_id>`
 
-![img_13.png](img_13.png)
+![img_folder_for_api_docs/img_13.png](img_folder_for_api_docs/img_13.png)
 
 13. **Create prescription: ** _POST_ `/participant/prescribe`
 
