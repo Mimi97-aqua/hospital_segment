@@ -1,0 +1,17 @@
+Endpoint                                         Methods    Rule                                                                              
+-----------------------------------------------  ---------  ----------------------------------------------------------------------------------
+caregiver_route.create_caregiver                 POST       /caregiver/create                                                                 
+caregiver_route.list_participants_for_caregiver  GET        /caregiver/<string:caregiver_id>/participants                                     
+caregiver_route.view_caregiver_details           GET        /caregiver/details                                                                
+index.index                                      GET, LONI  /                                                                                 
+participants.administer_prescription             POST       /participant/administer/<string:participant_id>/prescription/<int:prescription_id>
+participants.create_participant                  POST       /participant/create/<string:caregiver_id>                                         
+participants.create_prescription                 POST       /participant/prescribe                                                            
+participants.delete_participant                  DELETE     /participant/delete/<string:participant_id>                                       
+participants.edit_participant_details            PATCH      /participant/update/<string:participant_id>                                       
+participants.list_all_participant_prescriptions  GET        /participant/prescriptions/<string:participant_id>                                
+participants.view_all_participant_details        GET        /participant/details                                                              
+participants.view_all_participants               GET        /participant/list                                                                 
+prescriptions.get_drugs                          GET        /drugs                                                                            
+prescriptions.get_pharmacies                     GET        /pharmacy                                                                         
+static                                           GET        /static/<path:filename>                                                           
