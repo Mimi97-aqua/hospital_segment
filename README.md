@@ -1,57 +1,37 @@
 # Hospital Segment
 
-## Table of Content
-
-- [Overview]()
-- [Directory Structure]()
-- [Implementation]()
-
 ## Overview
 This project implements a small section of a medical app where patient data is made available to doctors such that
-caregivers can be assigned to them if need be and prescriptions can equally be given to them.
+caregivers can be assigned to them if need be and prescriptions can equally be given to them. 
 
-## Directory Structure
+This project is hosted [here.](https://hospital-segment.onrender.com)
+
+## Setup
+
+* Runtime: Python 3.12
+* OS: Windows | Linux | Mac
+* Technologies used:
+  1. [x] Flask
+  2. [x] SQLAlchemy
+  3. [x] Marshmallow
+
+_For local setup_
+```shell
+cd ~
+git clone https://github.com/Mimi97-aqua/hospital_segment.git
+cd hospital_segment
+pip install -r requirements,txt
+```
 
 ## Implementation
-
-### Steps
-1. **Identifying objects and creating data models**
 
 Based on the Figma design, the database required 3 main objects (tables), namely:
 - Participant 
 - Prescriptions
 - Care Giver
 
-Using ORM, I defined and created the schemas for the above objects.
+From here, I proceeded to implementing the API routes.
 
 ### API Docs
-
-Base URL: `localhost:5000/`
-1. **Participant**
-
-Base endpoint: `/participants`
-
-Example request route:
-`POST localhost:5000/participants/create`
-
-_The participant here is also referred to as the **patient**._
-
-- **Create a participant**
-  - Creates a new participant and stores their details in the database
-  - `POST /create`
-
-- **Participants list**
-  - Displays participant details containing only the participant's name, date of birth, phone number, and address.
-  - `GET /list`
-
-- **Participants details**
-  - Returns all participants and all their details.
-  - `GET /details`
-
-- **Delete participant**
-  - Deletes a specified participant (using their ID) from the database.
-  - `DELETE /delete/id`
-
-- **Update Participant**
-  - Edits a specified participant's details (using their ID)
-  - `PATCH /update/id`
+- View documentation here.
+- To test out the APIs, visit this link to view the [Postman collection.](https://lunar-satellite-35635.postman.co/workspace/My-Workspace~74c77565-9011-4541-82dc-8d69a497f4db/collection/33878300-d1faaabe-c978-4e38-a34e-0956c09b43af?action=share&creator=33878300)
