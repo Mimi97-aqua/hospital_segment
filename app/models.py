@@ -55,6 +55,7 @@ class Prescription(db.Model):
     dose = db.Column(db.Integer, nullable=False)
     frequency = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.String, nullable=True)
+    action = db.Column(db.Boolean, default=False) # States whether or not the prescription was administered.
 
     # Relationships
     drugs = db.relationship('Drug', backref='prescription', lazy=True)

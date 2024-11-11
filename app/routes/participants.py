@@ -335,7 +335,7 @@ def list_all_participant_prescriptions(participant_id):
     List all the prescriptions created for a given participant.
     """
     try:
-        participant = Participant.query.get_or_404(participant_id)
+        # participant = Participant.query.get_or_404(participant_id)
         prescriptions = Prescription.query.filter_by(participant_id=participant_id).all()
 
         prescriptions_list = []
@@ -345,7 +345,8 @@ def list_all_participant_prescriptions(participant_id):
                 "name": prescription.drugs.name,
                 "dose": prescription.dose,
                 "time": [dose_time.time.strftime('%H:%M') for dose_time in prescription.dose_times],
-                "instruction": prescription.comment
+                "instruction": prescription.comment,
+                "action": prescription.action
             })
 
         return jsonify({
@@ -357,4 +358,36 @@ def list_all_participant_prescriptions(participant_id):
         return jsonify({
             "status": "error",
             "message": str(e)
+        }), 400
+
+
+@participants_routes.route('/administer/<string:participant_id>/prescription/<int:prescription_id>', methods=['POST'])
+def administer_prescription(participant_id, prescription_id):
+    """
+    Marks a prescription as either administered or unadministered.
+    """
+    try:
+        prescription = Prescription.query.filter_by(id=prescription_id, participant_id=participant_id).first_or_404()
+
+        prescription.action = True
+
+        db.session.commit()
+
+        return jsonify({
+            "status": "success",
+            "message": "Prescription successfully given.",
+            "prescription": {
+                "id": prescription.id,
+                "name": prescription.drugs.name,
+                "dose": prescription.dose,
+                "time": [dose_time.time.strftime('%H:%M') for dose_time in prescription.dose_times],
+                "instruction": prescription.comment,
+                "action": prescription.action
+            }
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "status": "error",
+            "message": f"Database was rolled back\nstr(e)"
         }), 400

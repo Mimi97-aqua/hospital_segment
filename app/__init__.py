@@ -8,7 +8,7 @@ import os
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///patients2.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///patients3.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'static/uploads')
     app.config['SECRET_KEY'] = os.urandom(24)
