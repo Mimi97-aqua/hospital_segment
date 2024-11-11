@@ -259,15 +259,15 @@ def create_prescription():
     """
     if request.method == 'POST':
         #caregiver = Caregiver.query.get_or_404(caregiver_id)
-        caregiver = request.form.get('caregiver_id')
-        participant = request.form.get('participant_id')
+        caregiver_id = request.form.get('caregiver_id')
+        participant_id = request.form.get('participant_id')
         #participant = Participant.query.get_or_404(participant_id)
         # caregiver = db.session.query(Caregiver).get(caregiver_id)
         # participant = db.session.query(Participant).get(participant_id)
         drug_id = request.form.get('drug_id')
         reason_for_medication = request.form.get('reason_for_medication')
         prescriber = request.form.get('prescriber')
-        pharmacy_id = Pharmacy.query.get_or_404(request.form.get('pharmacy_id'))
+        pharmacy_id = request.form.get('pharmacy_id')
         quantity_dosage = int(request.form.get('quantity_dosage'))
         refills = int(request.form.get('refills'))
         start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
@@ -290,8 +290,8 @@ def create_prescription():
                 }), 400
 
         new_prescription = Prescription(
-            caregiver=caregiver,
-            participant_id=participant,
+            caregiver_id=caregiver_id,
+            participant_id=participant_id,
             drug_id=drug_id,
             reason_for_medication=reason_for_medication,
             prescriber=prescriber,
